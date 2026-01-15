@@ -56,3 +56,54 @@ impl Default for AppConfig {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_app_config_default() {
+        let config = AppConfig::default();
+        assert_eq!(config.remote_user, "root");
+        assert_eq!(config.nodes.len(), 1);
+    }
+
+    #[test]
+    fn test_load_app_config() -> Result<()> {
+        let mut file = NamedTempFile::new()?;
+        let json = r#"{
+            "remote_user": "test_user",
+            "remote_host": "test_host",
+            "tmux_session_name": "test_session",
+            "vllm_docker_dir": "test_dir",
+            "nodes": ["1.1.1.1"]
+        }"#;
+        writeln!(file, "{}", json)?;
+
+        let config = AppConfig::load_from_file(file.path())?;
+        assert_eq!(config.remote_user, "test_user");
+        assert_eq!(config.nodes, vec!["1.1.1.1"]);
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_models() -> Result<()> {
+        let mut file = NamedTempFile::new()?;
+        let json = r#"[
+            {
+                "name": "test_model",
+                "model_id": "test_id",
+                "args": ["--arg1"]
+            }
+        ]"#;
+        writeln!(file, "{}", json)?;
+
+        let models = load_models(file.path())?;
+        assert_eq!(models.len(), 1);
+        assert_eq!(models[0].name, "test_model");
+        assert_eq!(models[0].args, vec!["--arg1"]);
+        Ok(())
+    }
+}
