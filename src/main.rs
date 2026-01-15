@@ -288,7 +288,23 @@ where
 
 /// Generates a tmux session name based on the model name.
 fn get_session_name(model_name: &str) -> String {
-    let sanitized = model_name.to_lowercase().replace(|c: char| !c.is_alphanumeric(), "-");
+    let mut sanitized = model_name
+        .to_lowercase()
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>();
+    
+    while sanitized.contains("--") {
+        sanitized = sanitized.replace("--", "-");
+    }
+    let sanitized = sanitized.trim_matches('-');
+    
     format!("vllm-{}", sanitized)
 }
 
@@ -499,4 +515,16 @@ async fn handle_attach_session(app: &mut App, log_tx: mpsc::Sender<LogMessage>) 
     let _ = execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture);
     let _ = io::stdout().write_all(b"\x1b[?25l"); 
     let _ = io::stdout().flush(); 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_session_name() {
+        assert_eq!(get_session_name("MiniMax-M2.1"), "vllm-minimax-m2-1");
+        assert_eq!(get_session_name("llama3-70b"), "vllm-llama3-70b");
+        assert_eq!(get_session_name("DeepSeek-V3 (AWQ)"), "vllm-deepseek-v3-awq");
+    }
 }

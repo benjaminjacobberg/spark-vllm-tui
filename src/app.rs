@@ -95,3 +95,37 @@ impl App {
         self.models.get(self.selected_model_index)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::AppConfig;
+
+    #[test]
+    fn test_app_init() {
+        let config = AppConfig::default();
+        let models = vec![
+            ModelConfig {
+                name: "model1".to_string(),
+                model_id: "id1".to_string(),
+                args: vec![],
+            }
+        ];
+        let app = App::new(config, models);
+        assert_eq!(app.selected_model_index, 0);
+        assert_eq!(app.connect_state, ConnectState::Disconnected);
+        assert!(app.selected_model().is_some());
+    }
+
+    #[test]
+    fn test_app_selection() {
+         let config = AppConfig::default();
+        let models = vec![
+            ModelConfig { name: "m1".into(), model_id: "i1".into(), args: vec![] },
+            ModelConfig { name: "m2".into(), model_id: "i2".into(), args: vec![] },
+        ];
+        let mut app = App::new(config, models);
+        app.selected_model_index = 1;
+        assert_eq!(app.selected_model().unwrap().name, "m2");
+    }
+}

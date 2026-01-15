@@ -1,5 +1,7 @@
 # VLLM Cluster TUI
 
+![Example screenshot](docs/img/example.png)
+
 A terminal-based user interface for managing a distributed vLLM cluster on DGX Spark nodes.
 
 ## Requirements
