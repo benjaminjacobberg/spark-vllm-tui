@@ -1,0 +1,10 @@
+{
+    "remote_user": "username",
+    "remote_host": "hostname_or_ip",
+    "tmux_session_name": "vllm-cluster",
+    "vllm_docker_dir": "spark-vllm-docker",
+    "nodes": [
+        "192.168.1.100",
+        "192.168.1.101"
+    ]
+}
