@@ -1,7 +1,7 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use anyhow::Result;
 
 /// Configuration for a specific vLLM model.
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -1,6 +1,7 @@
 # VLLM Cluster TUI
 
-![Example screenshot](docs/img/example.png)
+![Login screen](docs/img/login.png)
+![Log tailing](docs/img/tail_logs.png)
 
 A terminal-based user interface for managing a distributed vLLM cluster on DGX Spark nodes.
 
@@ -32,7 +33,6 @@ To use this tool, your cluster must meet the following requirements:
 
 | Key | Action |
 | --- | --- |
-| `c` | Connect to Host |
 | `d` | Disconnect |
 | `s` | Start Cluster (with selected model) |
 | `x` | Stop Cluster |

@@ -11,6 +11,13 @@ pub enum ConnectState {
     Failed(String),
 }
 
+/// Represents the high-level application state (Login screen vs Dashboard).
+#[derive(Debug, Clone, PartialEq)]
+pub enum AppState {
+    Login,
+    Dashboard,
+}
+
 use std::sync::atomic::AtomicBool;
 /// Represents the operational status of the vLLM cluster.
 #[derive(Debug, Clone, PartialEq)]
@@ -60,8 +67,6 @@ pub struct App {
     pub ssh_client: Arc<Mutex<Option<SshClient>>>,
     /// Buffer for password input.
     pub password_input: String,
-    /// Flag to show the password prompt modal.
-    pub show_password_prompt: bool,
     /// Index of the currently selected model.
     pub selected_model_index: usize,
     /// Buffer of log lines to display in the UI.
@@ -70,6 +75,8 @@ pub struct App {
     pub status_message: String,
     /// Atomic flag to signal log tailing cancellation.
     pub is_tailing: Arc<AtomicBool>,
+    /// Current application UI state.
+    pub state: AppState,
 }
 
 impl App {
@@ -82,11 +89,11 @@ impl App {
             cluster_status: ClusterStatus::Unknown,
             ssh_client: Arc::new(Mutex::new(None)),
             password_input: String::new(),
-            show_password_prompt: false,
             selected_model_index: 0,
             logs: vec![],
-            status_message: "Ready. Press 'c' to connect.".to_string(),
+            status_message: "Please log in.".to_string(),
             is_tailing: Arc::new(AtomicBool::new(false)),
+            state: AppState::Login,
         }
     }
 
@@ -104,13 +111,11 @@ mod tests {
     #[test]
     fn test_app_init() {
         let config = AppConfig::default();
-        let models = vec![
-            ModelConfig {
-                name: "model1".to_string(),
-                model_id: "id1".to_string(),
-                args: vec![],
-            }
-        ];
+        let models = vec![ModelConfig {
+            name: "model1".to_string(),
+            model_id: "id1".to_string(),
+            args: vec![],
+        }];
         let app = App::new(config, models);
         assert_eq!(app.selected_model_index, 0);
         assert_eq!(app.connect_state, ConnectState::Disconnected);
@@ -119,10 +124,18 @@ mod tests {
 
     #[test]
     fn test_app_selection() {
-         let config = AppConfig::default();
+        let config = AppConfig::default();
         let models = vec![
-            ModelConfig { name: "m1".into(), model_id: "i1".into(), args: vec![] },
-            ModelConfig { name: "m2".into(), model_id: "i2".into(), args: vec![] },
+            ModelConfig {
+                name: "m1".into(),
+                model_id: "i1".into(),
+                args: vec![],
+            },
+            ModelConfig {
+                name: "m2".into(),
+                model_id: "i2".into(),
+                args: vec![],
+            },
         ];
         let mut app = App::new(config, models);
         app.selected_model_index = 1;
