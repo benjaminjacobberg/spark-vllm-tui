@@ -3,6 +3,7 @@
         "name": "MiniMax-M2.1",
         "model_id": "mratsim/MiniMax-M2.1-FP8-INT4-AWQ",
         "args": [
+            "--served-model-name MiniMax-M2.1",
             "--trust-remote-code",
             "--port 8000",
             "--host 0.0.0.0",
